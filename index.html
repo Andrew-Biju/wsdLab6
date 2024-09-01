@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input.valid {
+            border-color: green;
+        }
+        input.invalid {
+            border-color: red;
+        }
+        .error {
+            color: red;
+            font-size: 12px;
+        }
+        .success-icon {
+            color: green;
+        }
+        .error-icon {
+            color: red;
+        }
+        button {
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<form id="registrationForm">
+    <h2>User Registration</h2>
+
+    <label for="fullName">Full Name:</label>
+    <input type="text" id="fullName" placeholder="Enter your full name">
+    <span id="fullNameError" class="error"></span>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" placeholder="Enter your email">
+    <span id="emailError" class="error"></span>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter your password">
+    <span id="passwordError" class="error"></span>
+
+    <label for="confirmPassword">Confirm Password:</label>
+    <input type="password" id="confirmPassword" placeholder="Confirm your password">
+    <span id="confirmPasswordError" class="error"></span>
+
+    <label for="dob">Date of Birth:</label>
+    <input type="date" id="dob">
+    <span id="dobError" class="error"></span>
+
+    <button type="submit" id="submitBtn" disabled>Register</button>
+</form>
+
+<script>
+    const form = document.getElementById('registrationForm');
+    const fullNameInput = document.getElementById('fullName');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const dobInput = document.getElementById('dob');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function validateFullName() {
+        const fullName = fullNameInput.value.trim();
+        const regex = /^[a-zA-Z\s]{3,}$/;
+        if (!regex.test(fullName)) {
+            fullNameInput.classList.add('invalid');
+            document.getElementById('fullNameError').textContent = 'Name must contain at least 3 alphabetic characters.';
+            return false;
+        }
+        fullNameInput.classList.remove('invalid');
+        fullNameInput.classList.add('valid');
+        document.getElementById('fullNameError').textContent = '';
+        return true;
+    }
+
+    function validateEmail() {
+        const email = emailInput.value.trim();
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!regex.test(email)) {
+            emailInput.classList.add('invalid');
+            document.getElementById('emailError').textContent = 'Invalid email format.';
+            return false;
+        }
+        emailInput.classList.remove('invalid');
+        emailInput.classList.add('valid');
+        document.getElementById('emailError').textContent = '';
+        return true;
+    }
+
+    function validatePassword() {
+        const password = passwordInput.value.trim();
+        const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        if (!regex.test(password)) {
+            passwordInput.classList.add('invalid');
+            document.getElementById('passwordError').textContent = 'Password must be at least 8 characters long and contain both letters and numbers.';
+            return false;
+        }
+        passwordInput.classList.remove('invalid');
+        passwordInput.classList.add('valid');
+        document.getElementById('passwordError').textContent = '';
+        return true;
+    }
+
+    function validateConfirmPassword() {
+        const password = passwordInput.value.trim();
+        const confirmPassword = confirmPasswordInput.value.trim();
+        if (confirmPassword !== password) {
+            confirmPasswordInput.classList.add('invalid');
+            document.getElementById('confirmPasswordError').textContent = 'Passwords do not match.';
+            return false;
+        }
+        confirmPasswordInput.classList.remove('invalid');
+        confirmPasswordInput.classList.add('valid');
+        document.getElementById('confirmPasswordError').textContent = '';
+        return true;
+    }
+
+    function validateDOB() {
+        const dob = new Date(dobInput.value);
+        const today = new Date();
+        const age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        const dayDiff = today.getDate() - dob.getDate();
+
+        if (age > 18 || (age === 18 && (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)))) {
+            dobInput.classList.remove('invalid');
+            dobInput.classList.add('valid');
+            document.getElementById('dobError').textContent = '';
+            return true;
+        }
+        dobInput.classList.add('invalid');
+        document.getElementById('dobError').textContent = 'You must be at least 18 years old.';
+        return false;
+    }
+
+    function enableSubmit() {
+        const isValid = validateFullName() && validateEmail() && validatePassword() && validateConfirmPassword() && validateDOB();
+        submitBtn.disabled = !isValid;
+    }
+
+    fullNameInput.addEventListener('input', () => { validateFullName(); enableSubmit(); });
+    emailInput.addEventListener('input', () => { validateEmail(); enableSubmit(); });
+    passwordInput.addEventListener('input', () => { validatePassword(); validateConfirmPassword(); enableSubmit(); });
+    confirmPasswordInput.addEventListener('input', () => { validateConfirmPassword(); enableSubmit(); });
+    dobInput.addEventListener('input', () => { validateDOB(); enableSubmit(); });
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault(); // Prevent the form from submitting if validation fails
+        if (validateFullName() && validateEmail() && validatePassword() && validateConfirmPassword() && validateDOB()) {
+            alert('Registration successful!');
+            form.reset(); // Reset form after successful submission
+            fullNameInput.classList.remove('valid');
+            emailInput.classList.remove('valid');
+            passwordInput.classList.remove('valid');
+            confirmPasswordInput.classList.remove('valid');
+            dobInput.classList.remove('valid');
+            submitBtn.disabled = true;
+        }
+    });
+</script>
+
+</body>
+</html>
